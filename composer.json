@@ -1,0 +1,32 @@
+{
+    "name": "wolfpack-it/laravel-gwt-plugin",
+    "description": "A Behavior Driven Testing (GWT) plugin for your Laravel Tests",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "WolfpackIT\\LaravelGWTPlugin\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Pascal van Gemert @ WolfpackIT",
+            "email": "pascal.van.gemert@wolfpackit.nl"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.1.0",
+        "laravel/framework": "^9.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.2",
+        "phpunit/phpunit": "^9.5.10"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+            ]
+        }
+    }
+}
