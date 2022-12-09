@@ -9,17 +9,41 @@ use ReflectionParameter;
 
 class TestScenario
 {
-    public const DEFAULT_AUTH_PROVIDER = 'Laravel\Sanctum';
+    public const PASSPORT_AUTH_PROVIDER = 'Laravel\Passport\Passport';
+    public const SANCTUM_AUTH_PROVIDER = 'Laravel\Sanctum\Sanctum';
+
+    protected static string $authProvider = self::SANCTUM_AUTH_PROVIDER;
+    protected static ?string $guard = null;
 
     protected array $conditions = [];
-
     protected array $actions = [];
-
     protected array $params = [];
 
     public function __construct(
         protected \PHPUnit\Framework\TestCase $testCase
     ) {
+    }
+
+    public static function setAuthProvider(string $authProvider): void
+    {
+        if (! method_exists($authProvider, 'actingAs')) {
+            throw new \BadMethodCallException(
+                "Class {$authProvider} does not contain the method actingAs."
+            );
+        }
+
+        static::$authProvider = $authProvider;
+    }
+
+    public static function setAuthGuard(string $guard): void
+    {
+        if (!config("auth.guards.{$guard}")) {
+            throw new \BadMethodCallException(
+                "There is no guard for {$guard} defined."
+            );
+        }
+
+        static::$guard = $guard;
     }
 
     public function fake(string $facade): TestScenario
@@ -37,18 +61,17 @@ class TestScenario
 
     public function as(
         Authenticatable $user,
-        ?string $injectAs = 'user',
-        string $authProvider = self::DEFAULT_AUTH_PROVIDER
+        ?string $injectAs = null,
     ): TestScenario {
-        if (! method_exists($authProvider, 'actingAs')) {
-            throw new \BadMethodCallException(
-                "Class {$authProvider} does not contain the method actingAs."
-            );
+        if (! method_exists(static::$authProvider, 'actingAs')) {
+            throw new \BadMethodCallException(sprintf(
+                "Class %s does not contain the method actingAs.", static::$authProvider
+            ));
         }
 
         // Pass on a closure as a given condition which execute the actingAs method on the auth provider
         return $this->given(
-            fn (): Authenticatable => call_user_func([$authProvider, 'actingAs'], $user),
+            fn (): Authenticatable => call_user_func([static::$authProvider, 'actingAs'], $user),
             $injectAs
         );
     }
@@ -166,9 +189,18 @@ class TestScenario
                 return $param;
             }
 
-            // If the type matches the argument type, use param value as auto-injection
-            if (get_debug_type($param) === $argument->getType()->getName()) {
-                $toInject = $param;
+            // Get the argument type(s)
+            $type = $argument->getType();
+
+            // Prepare as array to support union types
+            $types = method_exists($type, 'getTypes') ? $type->getTypes() : [$type];
+
+            // If the type matches any of the argument type (first wins), use param value as auto-injection
+            foreach ($types as $type) {
+                if (get_debug_type($param) === $type->getName()) {
+                    $toInject = $param;
+                    break;
+                }
             }
         }
 

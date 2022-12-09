@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 /**
  * @method TestScenario fake(string $facade)
- * @method TestScenario as(Authenticatable $user, ?string $as = 'user', string $authProvider = TestScenario::DEFAULT_AUTH_PROVIDER)
+ * @method TestScenario as(Authenticatable $user, ?string $as = null)
  * @method TestScenario throws(string $exception, ?string $message = '')
  * @method TestScenario given(callable $condition, ?string $as = null)
  * @method TestScenario when(callable $action, ?string $as = null)
