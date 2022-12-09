@@ -73,12 +73,20 @@ class StorePostTest extends TestCase
 #### The `as` method
 While testing, the Sanctum::actingAs or Passport::actingAs method may be used to authenticate a user.
 To use this Authenticated user in the Given-When-Then methods you can use the 
-`as(Authenticatable $user, ?string $injectAs = 'user', string $authProvider = self::DEFAULT_AUTH_PROVIDER)` method.
+`as(Authenticatable $user, ?string $injectAs = null)` method.
 This Authenticatable is then added to the auto injection for the other methods.
-You can also overwrite the Authentication Provider by giving the ClassName (string) as the second parameter.
 
 ```php
 $this->as(User::factory()->create());
+$this->as(Admin::factory()->create(), 'admin');
+```
+
+In order to change the default Auth Provider (Sanctum), you can use the following static methods to change these settings.
+As long as the guard is defined in the `config/auth.php` and the Auth Provider class implements the `actingAs` method:
+
+```php
+TestScenario::setAuthGuard('admin');
+TestScenario::setAuthProvider(TestScenario::PASSPORT_AUTH_PROVIDER);
 ```
 
 #### The `fake` method
