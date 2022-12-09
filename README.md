@@ -31,7 +31,7 @@ class StorePostTest extends TestCase
             // Fake sending the email
             ->fake(Mail::class)
             // Given is the post data, stored in a param called `post`
-            ->given([
+            ->given(fn (): array => [
                 'title' => 'My first post',
                 'content' => 'Lorem ipsum dolor amet sum it',
             ], 'post')
@@ -39,7 +39,7 @@ class StorePostTest extends TestCase
             ->given(fn(): Language => Language::current())
             // The $post and $language are automatically injected based on the results of the `given` methods
             ->when(fn (array $post, Language $language): TestResponse =>
-                return $this->postJson(route('api.posts.store'), $payload);
+                $this->postJson(route('api.posts.store'), $post)
             )
             // Instead of using a closure you can call a protected method as a callable with `(...)`
             ->then($this->responseContainsPostId(...))
