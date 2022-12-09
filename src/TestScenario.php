@@ -61,7 +61,7 @@ class TestScenario
 
     public function as(
         Authenticatable $user,
-        ?string $injectAs = null,
+        ?string $injectAs = null
     ): TestScenario {
         if (! method_exists(static::$authProvider, 'actingAs')) {
             throw new \BadMethodCallException(sprintf(
@@ -71,7 +71,7 @@ class TestScenario
 
         // Pass on a closure as a given condition which execute the actingAs method on the auth provider
         return $this->given(
-            fn (): Authenticatable => call_user_func([static::$authProvider, 'actingAs'], $user),
+            fn (): Authenticatable => call_user_func([static::$authProvider, 'actingAs'], $user, [], static::$guard),
             $injectAs
         );
     }
